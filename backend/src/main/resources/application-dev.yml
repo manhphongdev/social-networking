@@ -7,7 +7,7 @@ spring:
     add-properties: true
 
   datasource:
-    url: jdbc:mysql://${DB_HOST:}:${DB_PORT:3306}/${DB_NAME:social_network}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    url: jdbc:mysql://${DB_HOST:}:${DB_PORT:3306}/${DB_NAME:social_network}?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
     username: ${DB_USER:}
     password: ${DB_PASS:}
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -27,6 +27,7 @@ spring:
 
 jwt:
   signer-key: "1TjXchw5FloESb63Kc+DFhTARvpWL4jUGCwfGWxuG5SIf/1y/LgJxHnMqaF6A/ij"
+  key2: "8mhZcWZVPhDeucdGaUQhUQoSkda3+jAtkBPJNP/4dvQ="
 
 admin: { email_default: "manhphong6572@gmail.com", password_default: "12345678" }
 

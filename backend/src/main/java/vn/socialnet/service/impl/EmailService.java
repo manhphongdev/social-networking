@@ -18,7 +18,7 @@ import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
+@Slf4j(topic = "EMAIL-SERVICE")
 public class EmailService {
 
     private final SendGrid sendgrid;
@@ -29,7 +29,7 @@ public class EmailService {
     /**
      * Send email by SendGrid
      *
-     * @param to      send email to someone
+     * @param to send email to someone
      * @param subject
      * @param text
      */

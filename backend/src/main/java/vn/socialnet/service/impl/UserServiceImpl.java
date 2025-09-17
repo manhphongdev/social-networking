@@ -19,7 +19,6 @@ import vn.socialnet.enums.UserRole;
 import vn.socialnet.enums.UserStatus;
 import vn.socialnet.exception.DuplicateResourceException;
 import vn.socialnet.exception.ResourceNotFoundException;
-import vn.socialnet.model.AbstractEntity;
 import vn.socialnet.model.Role;
 import vn.socialnet.model.User;
 import vn.socialnet.repository.RoleRepository;
@@ -44,7 +43,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
-    private final RoleRepository<Number, AbstractEntity> roleRepository;
+    private final RoleRepository roleRepository;
 
     private final SearchRepository searchRepository;
 
@@ -58,14 +57,13 @@ public class UserServiceImpl implements UserService {
 
         PasswordEncoder encoder = new BCryptPasswordEncoder(10);
 
-
         User user = User.builder()
                 .email(req.getEmail())
                 .password(encoder.encode(req.getPassword()))
                 .name(req.getName())
                 .dateOfBirth(req.getDateOfBirth())
                 .gender(req.getGender())
-                .status(UserStatus.INACTIVE)
+                .status(UserStatus.ACTIVE)
                 .build();
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
@@ -91,7 +89,6 @@ public class UserServiceImpl implements UserService {
         user.setUpdatedAt(LocalDateTime.now());
         userRepository.save(user);
         log.info("User updated successful, id: {}", user.getId());
-
     }
 
     @Override

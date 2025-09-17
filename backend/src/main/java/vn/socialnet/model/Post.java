@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import vn.socialnet.enums.PostPrivates;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Entity(name = "posts")
-public class Post extends AbstractEntity{
+public class Post extends AbstractEntity implements Serializable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)

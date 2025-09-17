@@ -30,7 +30,7 @@ import java.util.Set;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ApplicationInitializer {
 
-    final RoleRepository<Number, AbstractEntity> roleRepository;
+    final RoleRepository roleRepository;
     final UserRepository userRepository;
     final PasswordEncoder passwordEncoder;
 

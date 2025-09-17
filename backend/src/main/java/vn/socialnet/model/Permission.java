@@ -6,17 +6,26 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import lombok.*;
 
+import java.io.Serializable;
+
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name = "permissions")
-public class Permission {
+public class Permission implements Serializable {
 
     @Id
-    private  String name;
+    private Long id;
 
-    @Column
-    private  String description;
+    @Column(nullable = false)
+    private String method;
+
+    @Column(nullable = false)
+    private String path;
+
+    @Column(nullable = false)
+    private String description;
+
 }
