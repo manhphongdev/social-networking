@@ -26,9 +26,9 @@ public class UserProfileRequest {
     @JsonFormat(pattern = "dd/MM/yyyy")
     @NotNull(message = "Date must be not null!")
     @Past(message = "Date of birth must be in the past!")
-    @Schema(description = "example: 20/08/2005",
-            example = "20/08/2005",
-            defaultValue = "20/08/2005")
+    @Schema(description = "example: 19/08/2005",
+            example = "19/08/2005",
+            defaultValue = "19/08/2005")
     LocalDate dateOfBirth;
 
     @NotNull(message = "Gender cannot be null")

@@ -8,6 +8,6 @@ import vn.socialnet.model.Role;
 import java.util.Optional;
 
 @Repository
-public interface RoleRepository<L extends Number, P extends AbstractEntity> extends JpaRepository<Role, Long> {
+public interface RoleRepository extends JpaRepository<Role, Long> {
     Optional<Role> findByName(String name);
 }

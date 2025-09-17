@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import vn.socialnet.dto.request.UserCreationRequest;
 import vn.socialnet.dto.request.UserProfileRequest;
@@ -38,6 +39,7 @@ public class UserController {
     @Operation(summary = "Get a user by id",
             description = "Send a request via this API to get a user")
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     public ResponseData<UserDetailResponse> getUser(@PathVariable long id) {
 
         log.info("Request find user by id, id: {} ", id);
@@ -50,6 +52,7 @@ public class UserController {
     @Operation(summary = "Get all users",
             description = "Send a request via this API to get all users")
     @GetMapping("/list")
+    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     public ResponseData<?> getAllUser(@Min(0) @RequestParam(defaultValue = "0", required = false) int pageNo,
                                       @Min(10) @RequestParam(defaultValue = "20", required = false) int pageSize) {
 
@@ -126,4 +129,5 @@ public class UserController {
 
         return new ResponseData<>(HttpStatus.OK.value(), "User Status updated successful");
     }
+
 }

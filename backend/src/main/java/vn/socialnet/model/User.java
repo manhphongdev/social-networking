@@ -2,10 +2,15 @@ package vn.socialnet.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import vn.socialnet.enums.Gender;
 import vn.socialnet.enums.UserStatus;
 
+import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -16,7 +21,45 @@ import java.util.Set;
 @AllArgsConstructor
 @Entity
 @Table(name = "users")
-public class User extends AbstractEntity {
+public class User extends AbstractEntity implements UserDetails, Serializable {
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+
+        //get Role
+        List<Role> roleList = roles.stream().toList();
+
+        //get role name
+        List<String> roleNames = roleList.stream().map(role -> role.getName()).toList();
+
+        //add role name to authority
+        return roleNames.stream().map(roleName -> new SimpleGrantedAuthority(roleName)).toList();
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return UserDetails.super.isAccountNonExpired();
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return UserDetails.super.isAccountNonLocked();
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return UserDetails.super.isCredentialsNonExpired();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return UserStatus.ACTIVE.equals(status);
+    }
+
     @Column(columnDefinition = "VARCHAR(255)", nullable = false, unique = true)
     private String email;
 

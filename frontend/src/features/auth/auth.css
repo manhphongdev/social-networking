@@ -1,0 +1,277 @@
+body {
+    background: linear-gradient(135deg, #fef6f0 0%, #ffede1 100%);
+    font-family: 'Poppins', sans-serif;
+    color: #2c2c2c;
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.register-container {
+    max-width: 500px;
+    width: 150%;
+    padding: 2rem;
+}
+
+.register-card {
+    background: #fff;
+    border-radius: 24px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    padding: 2.5rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.register-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+}
+
+.register-card h2 {
+    font-weight: 700;
+    color: #ff5e00;
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 1.8rem;
+}
+
+.login-container {
+    max-width: 400px;
+    width: 100%;
+    padding: 2rem;
+}
+
+.login-card {
+    background: #fff;
+    border-radius: 24px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    padding: 2rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.login-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.login-card h2 {
+    font-weight: 700;
+    color: #ff5e00;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.form-control {
+    border-radius: 12px;
+    border: 1px solid #e0e0e0;
+    font-size: 0.95rem;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.form-control:focus {
+    border-color: #ff8c00;
+    box-shadow: 0 0 8px rgba(255, 94, 0, 0.3);
+}
+
+.btn-primary {
+    background-color: #ff5e00;
+    border-color: #ff5e00;
+    font-weight: 500;
+    border-radius: 12px;
+    padding: 0.75rem;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #ff4500;
+    border-color: #ff4500;
+    transform: scale(1.02);
+}
+
+.btn-google {
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
+    color: #333;
+    font-weight: 500;
+    border-radius: 12px;
+    padding: 0.75rem;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    margin-top: 1rem;
+}
+
+.btn-google:hover {
+    background-color: #f8f8f8;
+    transform: scale(1.02);
+}
+
+.btn-google img {
+    width: 20px;
+    height: 20px;
+}
+
+.text-center a {
+    color: #ff5e00;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.text-center a:hover {
+    text-decoration: underline;
+}
+
+.error-message,
+.success-message {
+    font-size: 0.9rem;
+    text-align: center;
+    margin-bottom: 1rem;
+    display: none;
+}
+
+.error-message {
+    color: #ff0000;
+}
+
+.success-message {
+    color: #28a745;
+}
+
+.modal-content {
+    border-radius: 24px;
+    border: none;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header,
+.modal-footer {
+    border: none;
+    padding: 1.5rem;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-footer .form-control {
+    border-radius: 12px;
+    border: 1px solid #e0e0e0;
+    resize: none;
+}
+
+.form-group {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.form-control,
+.form-select {
+    border-radius: 12px;
+    border: 1px solid #e0e0e0;
+    font-size: 0.95rem;
+    padding: 1rem 0.75rem;
+    background: #f9f9f9;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #ff8c00;
+    box-shadow: 0 0 8px rgba(255, 94, 0, 0.3);
+    background: #fff;
+}
+
+.form-group label {
+    position: absolute;
+    top: 50%;
+    left: 0.75rem;
+    transform: translateY(-50%);
+    font-size: 0.95rem;
+    color: #666;
+    pointer-events: none;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus~label,
+.form-group input:not(:placeholder-shown)~label,
+.form-group textarea:focus~label,
+.form-group textarea:not(:placeholder-shown)~label,
+.form-group select:focus~label,
+.form-group select:not([value=""])~label {
+    top: 0;
+    font-size: 0.75rem;
+    color: #ff5e00;
+    background: #fff;
+    padding: 0 0.25rem;
+}
+
+.form-group textarea {
+    resize: none;
+    height: 100px;
+}
+
+@media (max-width: 576px) {
+    .login-container {
+        padding: 1rem;
+    }
+
+    .login-card {
+        padding: 1.5rem;
+    }
+
+    .login-card h2 {
+        font-size: 1.5rem;
+    }
+
+    .form-control {
+        font-size: 0.9rem;
+        padding: 0.6rem;
+    }
+
+    .btn-primary,
+    .btn-google {
+        padding: 0.6rem;
+        font-size: 0.9rem;
+    }
+
+    .modal-content {
+        margin: 0.5rem;
+    }
+
+    .register-container {
+        padding: 1rem;
+    }
+
+    .register-card {
+        padding: 1.5rem;
+    }
+
+    .register-card h2 {
+        font-size: 1.5rem;
+    }
+
+    .form-control,
+    .form-select {
+        font-size: 0.9rem;
+        padding: 0.8rem 0.6rem;
+    }
+
+    .form-group label {
+        font-size: 0.9rem;
+    }
+
+    .form-group input:focus~label,
+    .form-group input:not(:placeholder-shown)~label,
+    .form-group textarea:focus~label,
+    .form-group textarea:not(:placeholder-shown)~label,
+    .form-group select:focus~label,
+    .form-group select:not([value=""])~label {
+        font-size: 0.7rem;
+    }
+}
