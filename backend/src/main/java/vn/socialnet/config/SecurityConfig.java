@@ -1,77 +1,79 @@
 package vn.socialnet.config;
 
+import com.sendgrid.SendGrid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import vn.socialnet.service.impl.UserServiceDetail;
 
-import javax.crypto.spec.SecretKeySpec;
 import java.util.List;
 
-@Profile(("dev"))
+
 @Configuration
-public class SecurityConfig implements WebMvcConfigurer {
+@RequiredArgsConstructor
+@EnableMethodSecurity(securedEnabled = true)
+public class SecurityConfig {
 
-    private final String[] PUBLIC_ENDPOINTS = {
-            "/users/swagger-config",
-            "/auth/log-in", "auth/introspect",
-            "/swagger-ui.html",
-    };
-    @Value("${jwt.signer-key}")
-    private String jwtSignerKey;
+    @Value("${spring.sendgrid.api-key}")
+    private String sendGridKey;
 
-//    @Bean
-//    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-////        httpSecurity.authorizeHttpRequests(request ->
-////                request.requestMatchers(HttpMethod.POST, "/users/swagger-config").permitAll()
-////                        .requestMatchers(HttpMethod.POST, "/auth/log-in", "auth/introspect").permitAll()
-////                        .anyRequest().authenticated());
-//
-//        httpSecurity.authorizeHttpRequests(request ->
-//                request.anyRequest().permitAll());
-//
-//        httpSecurity.oauth2ResourceServer(oauth2 ->
-//                oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder()))
-//
-//        );
-//
-//        httpSecurity.csrf(AbstractHttpConfigurer::disable);
-//
-//        return httpSecurity.build();
-//    }
+    private final CustomizeRequestFilter requestFilter;
+    private final UserServiceDetail userServiceDetail;
+
 
     @Bean
-    JwtDecoder jwtDecoder() {
-        //create secret key
-        SecretKeySpec secretKeySpec = new SecretKeySpec(jwtSignerKey.getBytes(), "HS512");
-        return NimbusJwtDecoder
-                .withSecretKey(secretKeySpec)
-                .macAlgorithm(MacAlgorithm.HS512)
-                .build();
+    public SendGrid sendGrid() {
+        return new SendGrid(sendGridKey);
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder(10);
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/user/**").hasAnyRole("ADMIN", "MANAGER")
+                        .anyRequest()
+                        .authenticated())
+                .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authenticationProvider(authenticationProvider()).addFilterBefore(requestFilter, UsernamePasswordAuthenticationFilter.class);
+        return http.build();
     }
 
 
-
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")  // Áp dụng cho tất cả endpoint
-                .allowedOrigins("http://localhost:3000")  // Origin của frontend React (thay đổi nếu cần)
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")  // Các method cho phép
-                .allowedHeaders("*")  // Cho phép tất cả headers (bao gồm Content-Type, Authorization)
-                .allowCredentials(true);  // Nếu cần gửi cookie hoặc auth headers
+    @Bean
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setPasswordEncoder(passwordEncoder());
+        authProvider.setUserDetailsService(userServiceDetail);
+        return authProvider;
     }
+
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -84,5 +86,5 @@ public class SecurityConfig implements WebMvcConfigurer {
         source.registerCorsConfiguration("/**", config);
         return source;
     }
-    
+
 }

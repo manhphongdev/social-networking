@@ -1,9 +1,12 @@
 package vn.socialnet.dto.request;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import vn.socialnet.utils.fieldValidator.Email;
+import vn.socialnet.utils.fieldValidator.Password;
 
 import java.io.Serializable;
 
@@ -12,12 +15,14 @@ import java.io.Serializable;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class SignInRequest implements Serializable {
 
+    @Email
+    @Schema(example = "user1@gmail.com", defaultValue = "user1@gmail.com")
     String email;
+
+    @Password
+    @Schema(example = "12345678", defaultValue = "12345678")
     String password;
-    String platform; //web, mobile, miniApp
     String token;
     String deviceToken;
-    String versionApp;
-
 
 }

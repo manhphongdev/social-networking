@@ -76,7 +76,7 @@ public class JWTServiceImpl implements JWTService {
                 .setClaims(claims)
                 .setSubject(email)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))//1h
                 .signWith(getKey(ACCESS_TOKEN), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -87,7 +87,7 @@ public class JWTServiceImpl implements JWTService {
                 .setClaims(claims)
                 .setSubject(email)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) //1 day
                 .signWith(getKey(REFRESH_TOKEN), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -103,5 +103,6 @@ public class JWTServiceImpl implements JWTService {
             default -> throw new IllegalArgumentException("Invalid token type");
         }
     }
+
 }
 

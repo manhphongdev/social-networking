@@ -28,7 +28,6 @@ public class UserController {
     @Operation(method = "POST", summary = "create new user account",
             description = "Send a request via this API to add new user and set role to db")
     public ResponseData<Long> addUser(@Valid @RequestBody UserCreationRequest user) {
-
         log.info("Request add new user, email: {} ", user.getEmail());
         long id = userService.saveUser(user);
         log.info("Response add new user success, email: {} ", user.getEmail());
@@ -128,6 +127,11 @@ public class UserController {
         log.info("Response update User status, id: {}, status:  {}", id, status);
 
         return new ResponseData<>(HttpStatus.OK.value(), "User Status updated successful");
+    }
+
+    @GetMapping("/all-user")
+    public String getAll() {
+        return "Hello world";
     }
 
 }
