@@ -57,6 +57,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         String accessToken = jwtService.generateAccessToken(request.getEmail(), authorities);
         String refreshToken = jwtService.generateRefreshToken(request.getEmail(), authorities);
+        log.info("accessToken={}", accessToken);
+        log.info("login successful");
 
         return TokenResponse.builder()
                 .accessToken(accessToken)
@@ -68,6 +70,5 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public TokenResponse getRefreshToken(SignInRequest request) {
         return null;
     }
-
 
 }
