@@ -37,7 +37,6 @@ public class GlobalExceptionHandler {
             errorResponse.setMessage(e.getMessage());
         }
         return errorResponse;
-
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -72,7 +71,6 @@ public class GlobalExceptionHandler {
         int start = message.lastIndexOf("[");
         int end = message.lastIndexOf("]");
         message = message.substring(start + 1, end - 1);
-        errorResponse.setMessage(message);
 
         errorResponse.setMessage(message);
         return errorResponse;
@@ -146,7 +144,6 @@ public class GlobalExceptionHandler {
         }
         return errorResponse;
     }
-
 
     @ExceptionHandler(AuthenticatedException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
@@ -300,7 +297,6 @@ public class GlobalExceptionHandler {
         return errorResponse;
     }
 
-
     /**
      * Handle exception when access forbidden
      *
@@ -341,6 +337,18 @@ public class GlobalExceptionHandler {
         return errorResponse;
     }
 
+    @ExceptionHandler(AppException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleAppException(AppException e, WebRequest request) {
+        ErrorCode errorCode = e.getErrorCode();
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setTimestamp(LocalDateTime.now());
+        errorResponse.setInstance(request.getDescription(false).replace("uri=", ""));
+        errorResponse.setStatus(errorCode.getCode());
+        errorResponse.setTitle(errorCode.name());
+        errorResponse.setMessage(errorCode.getMessage());
+        return errorResponse;
+    }
 
     private void setResponseBadRequest(ErrorResponse errorResponse, WebRequest req) {
         errorResponse.setTitle(HttpStatus.BAD_REQUEST.getReasonPhrase()); // "Bad Request"
@@ -348,5 +356,4 @@ public class GlobalExceptionHandler {
         errorResponse.setInstance(req.getDescription(false).replace("uri=", ""));
         errorResponse.setTimestamp(LocalDateTime.now());
     }
-
 }

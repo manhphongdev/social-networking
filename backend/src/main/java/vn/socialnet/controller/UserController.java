@@ -7,14 +7,18 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import vn.socialnet.dto.request.UserCreationRequest;
 import vn.socialnet.dto.request.UserProfileRequest;
 import vn.socialnet.dto.response.PageResponse;
 import vn.socialnet.dto.response.ResponseData;
 import vn.socialnet.dto.response.UserDetailResponse;
+import vn.socialnet.dto.response.UserProfileResponse;
 import vn.socialnet.enums.UserStatus;
 import vn.socialnet.service.UserService;
+import vn.socialnet.service.impl.S3Service;
 
 @RestController
 @RequestMapping("/users")
@@ -23,13 +27,15 @@ import vn.socialnet.service.UserService;
 public class UserController {
 
     private final UserService userService;
+    private final S3Service s3Service;
 
-    @PostMapping("/")
+    @PostMapping("/register")
     @Operation(method = "POST", summary = "create new user account",
             description = "Send a request via this API to add new user and set role to db")
-    public ResponseData<Long> addUser(@Valid @RequestBody UserCreationRequest user) {
-        log.info("Request add new user, email: {} ", user.getEmail());
-        long id = userService.saveUser(user);
+    public ResponseData<Long> userRegister(@Valid @RequestPart("user") UserCreationRequest user,
+                                           @RequestPart(value = "file", required = false) MultipartFile file) {
+        log.info("Request add new user, email: {} ", user);
+        long id = userService.userRegister(user, file);
         log.info("Response add new user success, email: {} ", user.getEmail());
 
         return new ResponseData<>(HttpStatus.CREATED.value(), "User added", id);
@@ -129,9 +135,16 @@ public class UserController {
         return new ResponseData<>(HttpStatus.OK.value(), "User Status updated successful");
     }
 
-    @GetMapping("/all-user")
-    public String getAll() {
-        return "Hello world";
+
+    @Operation(summary = "Get user profile by user id",
+            description = "Send a request via this API to get a user profile")
+    @GetMapping("/profile/me")
+    public ResponseData<UserProfileResponse> getUserProfile(Authentication authentication) {
+
+        String email = authentication.getName();
+        UserProfileResponse user = userService.getUserProfile(email);
+
+        return new ResponseData<>(HttpStatus.OK.value(), "User founded", user);
     }
 
 }

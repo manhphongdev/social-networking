@@ -55,5 +55,4 @@ public class CustomizeRequestFilter extends OncePerRequestFilter {
         }
         filterChain.doFilter(request, response);
     }
-
 }

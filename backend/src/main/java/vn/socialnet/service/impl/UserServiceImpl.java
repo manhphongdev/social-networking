@@ -7,32 +7,36 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 import vn.socialnet.dto.request.UserCreationRequest;
 import vn.socialnet.dto.request.UserProfileRequest;
 import vn.socialnet.dto.response.PageResponse;
 import vn.socialnet.dto.response.UserDetailResponse;
+import vn.socialnet.dto.response.UserProfileResponse;
 import vn.socialnet.enums.UserRole;
 import vn.socialnet.enums.UserStatus;
-import vn.socialnet.exception.DuplicateResourceException;
+import vn.socialnet.exception.AppException;
+import vn.socialnet.exception.ErrorCode;
 import vn.socialnet.exception.ResourceNotFoundException;
 import vn.socialnet.model.Role;
 import vn.socialnet.model.User;
 import vn.socialnet.repository.RoleRepository;
 import vn.socialnet.repository.SearchRepository;
 import vn.socialnet.repository.UserRepository;
+import vn.socialnet.service.FollowService;
+import vn.socialnet.service.PostService;
 import vn.socialnet.service.UserService;
 import vn.socialnet.utils.message.UserMessage;
 
+import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -47,35 +51,44 @@ public class UserServiceImpl implements UserService {
 
     private final SearchRepository searchRepository;
 
+    private final PasswordEncoder passwordEncoder;
+
+    private final S3Service s3Service;
+
+    private final FollowService followService;
+
+    private final PostService postService;
+
     @Transactional
     @Override
-    public long saveUser(UserCreationRequest req) {
+    public long userRegister(UserCreationRequest req, MultipartFile file) throws RuntimeException {
 
         if (isUserExist(req.getEmail())) {
-            throw new DuplicateResourceException(UserMessage.EMAIL_EXISTS);
+            throw new AppException(ErrorCode.EMAIL_EXISTED);
         }
 
-        PasswordEncoder encoder = new BCryptPasswordEncoder(10);
+        User user;
+        try {
+            String avatarUrl = s3Service.uploadFile(file);
+            user = User.builder()
+                    .email(req.getEmail())
+                    .password(passwordEncoder.encode(req.getPassword()))
+                    .name(req.getName())
+                    .dateOfBirth(req.getDateOfBirth())
+                    .gender(req.getGender())
+                    .status(UserStatus.ACTIVE)
+                    .avatar(avatarUrl)
+                    .build();
 
-        User user = User.builder()
-                .email(req.getEmail())
-                .password(encoder.encode(req.getPassword()))
-                .name(req.getName())
-                .dateOfBirth(req.getDateOfBirth())
-                .gender(req.getGender())
-                .status(UserStatus.ACTIVE)
-                .build();
-        user.setCreatedAt(LocalDateTime.now());
-        user.setUpdatedAt(LocalDateTime.now());
+            Role role = roleRepository.findByName(UserRole.USER.name())
+                    .orElseThrow(() -> new ResourceNotFoundException("Role not found!"));
+            user.setRole(role);
+            userRepository.save(user);
+            log.info("User {} added with role {}!", req.getEmail(), role.getName());
+        } catch (IOException | S3Exception e) {
+            throw new RuntimeException("Failed to read avatar file: " + e.getMessage());
+        }
 
-        Set<Role> roles = new HashSet<>();
-        Role role = roleRepository.findByName(UserRole.USER.name())
-                .orElseThrow(() -> new ResourceNotFoundException("Role not found!"));
-
-        roles.add(role);
-        user.setRoles(roles);
-        userRepository.save(user);
-        log.info("User {} added with role {}!", req.getEmail(), role.getName());
         return user.getId();
     }
 
@@ -114,10 +127,8 @@ public class UserServiceImpl implements UserService {
                 .id(user.getId())
                 .email(user.getEmail())
                 .name(user.getName())
-                .dateOfBirth(user.getDateOfBirth())
-                .gender(user.getGender().name())
-                .status(user.getStatus().name())
-                .roles(user.getRoles().stream().map(Role::getName).toList())
+                .status(user.getStatus())
+                .roleName(user.getRole().getName())
                 .build();
     }
 
@@ -166,10 +177,8 @@ public class UserServiceImpl implements UserService {
                 .id(user.getId())
                 .name(user.getName())
                 .email(user.getEmail())
-                .status(user.getStatus().name())
-                .roles(user.getRoles().stream().map(Role::getName).toList())
-                .gender(user.getGender().name())
-                .dateOfBirth(user.getDateOfBirth())
+                .status(user.getStatus())
+                .roleName(user.getRole().getName())
                 .build()).toList();
 
         return PageResponse.builder()
@@ -218,6 +227,25 @@ public class UserServiceImpl implements UserService {
         }
 
         return searchRepository.getAllUsersWithSortByColumnsAndSearch(page, pageSize, search, sortBy);
+    }
+
+    @Override
+    public UserProfileResponse getUserProfile(String email) {
+        User user = userRepository.getUserByEmail(email);
+
+        return UserProfileResponse.builder()
+                .name(user.getName())
+                .avatarUrl(user.getAvatar())
+                .dateOfBirth(user.getDateOfBirth())
+                .gender(user.getGender())
+                .bio(user.getBio())
+                .jointAt(user.getCreatedAt().toLocalDate())
+                .location(user.getLocation())
+                .totalFollowers(followService.totalFollowers(user))
+                .totalFollowing(followService.totalFollowings(user))
+                .totalPost(postService.totalPosts(user))
+                .build();
+
     }
 
     private boolean isUserExist(String email) {

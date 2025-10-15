@@ -1,6 +1,5 @@
 package vn.socialnet.dto.request;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
@@ -29,16 +28,15 @@ public class UserCreationRequest implements Serializable {
     @Schema(example = "12345678", defaultValue = "12345678")
     String password;
 
-    @NotNull(message = "User name must be not blank")
+    @NotNull(message = "full name must be not blank")
     @Schema(example = "Manh Phong", defaultValue = "Manh Phong")
     String name;
 
-    @JsonFormat(pattern = "dd/MM/yyyy")
     @NotNull(message = "Date must be not null!")
     @Past(message = "Date of birth must be in the past!")
-    @Schema(description = "example: 19/08/2005",
-            example = "19/08/2005",
-            defaultValue = "19/08/2005")
+    @Schema(description = "example: 2005/08/19",
+            example = "2005/08/19",
+            defaultValue = "2005/08/19")
     LocalDate dateOfBirth;
 
     @NotNull(message = "Gender cannot be null")
@@ -47,4 +45,5 @@ public class UserCreationRequest implements Serializable {
             example = "MALE",
             defaultValue = "MALE")
     Gender gender;
+
 }

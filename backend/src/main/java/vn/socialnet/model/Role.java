@@ -25,6 +25,7 @@ public class Role {
     @Column
     private String description;
 
+
     @ManyToMany()
     private Set<Permission> permissions;
 

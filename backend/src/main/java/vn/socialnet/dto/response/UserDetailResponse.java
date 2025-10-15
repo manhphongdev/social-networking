@@ -5,10 +5,9 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
+import vn.socialnet.enums.UserStatus;
 
 import java.io.Serializable;
-import java.time.LocalDate;
-import java.util.List;
 
 @Data
 @Builder
@@ -18,18 +17,8 @@ public class UserDetailResponse implements Serializable {
     Long id;
     String email;
     String name;
-    LocalDate dateOfBirth;
-    String gender;
-    String status;
-    List<String> roles;
+    UserStatus status;
+    String avatar;
+    String roleName;
 
-    public UserDetailResponse(Long id, String email, String name, LocalDate dateOfBirth, String gender, String status, List<String> roles) {
-        this.id = id;
-        this.email = email;
-        this.name = name;
-        this.dateOfBirth = dateOfBirth;
-        this.gender = gender;
-        this.status = status;
-        this.roles = roles;
-    }
 }

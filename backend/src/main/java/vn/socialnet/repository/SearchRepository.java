@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import vn.socialnet.dto.response.PageResponse;
 import vn.socialnet.dto.response.UserDetailResponse;
-import vn.socialnet.model.Role;
 import vn.socialnet.model.User;
 
 import java.security.InvalidParameterException;
@@ -61,10 +60,8 @@ public class SearchRepository {
                 .id(user.getId())
                 .name(user.getName())
                 .email(user.getEmail())
-                .status(user.getStatus().name())
-                .roles(user.getRoles().stream().map(Role::getName).toList())
-                .gender(user.getGender().name())
-                .dateOfBirth(user.getDateOfBirth())
+                .status(user.getStatus())
+                .roleName(user.getRole().getName())
                 .build()).toList();
 
         StringBuilder sqlCountQuery = new StringBuilder("select count(u) from User u where 1=1");

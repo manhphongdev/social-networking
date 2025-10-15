@@ -24,7 +24,7 @@ public class Post extends AbstractEntity implements Serializable {
     private String caption;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "repost_id", nullable = false)
+    @JoinColumn(name = "repost_id")
     private Post repost;
 
     @OneToMany(mappedBy = "repost", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
@@ -35,12 +35,12 @@ public class Post extends AbstractEntity implements Serializable {
     private PostPrivates privacy;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<PostMedia>  media = new ArrayList<>();
+    private List<PostMedia> media = new ArrayList<>();
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Reaction>  reactions = new ArrayList<>();
+    private List<Reaction> reactions = new ArrayList<>();
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Comment>  comments = new ArrayList<>();
+    private List<Comment> comments = new ArrayList<>();
 
 }

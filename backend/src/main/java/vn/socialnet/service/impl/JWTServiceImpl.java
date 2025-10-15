@@ -8,6 +8,7 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import vn.socialnet.enums.TokenType;
@@ -20,14 +21,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import static vn.socialnet.enums.TokenType.ACCESS_TOKEN;
-import static vn.socialnet.enums.TokenType.REFRESH_TOKEN;
-
 
 @Service
 @Slf4j(topic = "JWT-SERVICE")
 public class JWTServiceImpl implements JWTService {
 
+    @Value("${jwt.key_access_token}")
+    String ACCESS_TOKEN_KEY;
+
+    @Value("${jwt.key_refresh_token}")
+    String REFRESH_TOKEN_KEY;
+
+    @Value("${jwt.access_token_expiration}")
+    long accessTokenExpiration;
 
     @Override
     public String generateAccessToken(String email, List<String> authorities) {
@@ -54,6 +60,11 @@ public class JWTServiceImpl implements JWTService {
         return extractClaims(tokenType, token, claims -> claims.getSubject());
     }
 
+    @Override
+    public long getAccessTokenExpirationInSeconds() {
+        return accessTokenExpiration;
+    }
+
     private <T> T extractClaims(TokenType type, String token, Function<Claims, T> claimsExtractor) {
         final Claims claims = extractAllClaims(type, token);
         return claimsExtractor.apply(claims);
@@ -76,8 +87,8 @@ public class JWTServiceImpl implements JWTService {
                 .setClaims(claims)
                 .setSubject(email)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))//1h
-                .signWith(getKey(ACCESS_TOKEN), SignatureAlgorithm.HS256)
+                .setExpiration(new Date(System.currentTimeMillis() + accessTokenExpiration))//1h
+                .signWith(getKey(TokenType.ACCESS_TOKEN), SignatureAlgorithm.HS256)
                 .compact();
     }
 
@@ -87,18 +98,19 @@ public class JWTServiceImpl implements JWTService {
                 .setClaims(claims)
                 .setSubject(email)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) //1 day
-                .signWith(getKey(REFRESH_TOKEN), SignatureAlgorithm.HS256)
+                .setExpiration(new Date(System.currentTimeMillis() + accessTokenExpiration * 24 * 30)) //30 day
+                .signWith(getKey(TokenType.REFRESH_TOKEN), SignatureAlgorithm.HS256)
                 .compact();
     }
+
 
     private Key getKey(TokenType type) {
         switch (type) {
             case ACCESS_TOKEN -> {
-                return Keys.hmacShaKeyFor(Decoders.BASE64.decode("8mhZcWZVPhDeucdGaUQhUQoSkda3+jAtkBPJNP/4dvQ="));
+                return Keys.hmacShaKeyFor(Decoders.BASE64.decode(ACCESS_TOKEN_KEY));
             }
             case REFRESH_TOKEN -> {
-                return Keys.hmacShaKeyFor(Decoders.BASE64.decode("Gu4jjMNk9oBnertRHqfRZJdHnz5jihbbnjAHeWNQbpg="));
+                return Keys.hmacShaKeyFor(Decoders.BASE64.decode(REFRESH_TOKEN_KEY));
             }
             default -> throw new IllegalArgumentException("Invalid token type");
         }

@@ -11,6 +11,7 @@ import vn.socialnet.enums.UserStatus;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -26,13 +27,11 @@ public class User extends AbstractEntity implements UserDetails, Serializable {
     public Collection<? extends GrantedAuthority> getAuthorities() {
 
         //get Role
-        List<Role> roleList = roles.stream().toList();
 
         //get role name
-        List<String> roleNames = roleList.stream().map(role -> role.getName()).toList();
 
         //add role name to authority
-        return roleNames.stream().map(roleName -> new SimpleGrantedAuthority(roleName)).toList();
+        return Collections.singleton(new SimpleGrantedAuthority(role.getName()));
     }
 
     @Override
@@ -42,12 +41,12 @@ public class User extends AbstractEntity implements UserDetails, Serializable {
 
     @Override
     public boolean isAccountNonExpired() {
-        return UserDetails.super.isAccountNonExpired();
+        return !UserStatus.BANNED.equals(status);
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return UserDetails.super.isAccountNonLocked();
+        return !UserStatus.BANNED.equals(status);
     }
 
     @Override
@@ -66,6 +65,9 @@ public class User extends AbstractEntity implements UserDetails, Serializable {
     @Column(columnDefinition = "VARCHAR(255)", nullable = false)
     private String password;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    Role role;
+
     @Column(columnDefinition = "NVARCHAR(100)", nullable = false)
     private String name;
 
@@ -81,6 +83,8 @@ public class User extends AbstractEntity implements UserDetails, Serializable {
 
     @Column(columnDefinition = "VARCHAR(255)", name = "avatar")
     private String avatar;
+
+    private String location;
 
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "VARCHAR(15)", nullable = false, name = "status")
@@ -118,12 +122,9 @@ public class User extends AbstractEntity implements UserDetails, Serializable {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Message> messages;
+    
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<AccountProvider> accountProviders;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
-    private Set<Role> roles;
+
 }
