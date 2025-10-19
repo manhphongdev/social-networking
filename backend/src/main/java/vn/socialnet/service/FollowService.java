@@ -13,5 +13,19 @@ public interface FollowService {
 
     boolean isFollowing(Long followerId, Long followeeId);
 
+    /**
+     * Follow a user
+     */
+    void followUser(Long followerId, Long followeeId);
+
+    /**
+     * Unfollow a user
+     */
+    void unfollowUser(Long followerId, Long followeeId);
+
+    /**
+     * Get suggested users to follow
+     */
+    List<UserSummaryResponse> getSuggestedUsers(Long userId, int limit);
 
 }
