@@ -37,6 +37,4 @@ public class Notification extends AbstractEntity{
 
     @Column(name = "is_readded" ,columnDefinition = "BOOLEAN" , nullable = false)
     private boolean isReadded;
-
-
 }
