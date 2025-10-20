@@ -40,5 +40,4 @@ public class AuthenticationController {
         log.info("Refresh token request, refresh token: {}", req);
         return authenticationService.getRefreshToken(req);
     }
-
 }
