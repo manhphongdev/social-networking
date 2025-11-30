@@ -196,6 +196,59 @@ public class PostServiceImpl implements PostService {
                 .build();
     }
 
+    @Override
+    public PageResponse<?> getFeed(Long userId, int page, int size) {
+        User user = getUserById(userId);
+
+        // Get list of users that the current user follows
+        List<User> followedUsers = followRepository.findFolloweesByFollower(user);
+
+        if (followedUsers.isEmpty()) {
+            // Return empty feed if not following anyone
+            return PageResponse.builder()
+                    .pageNo(page)
+                    .pageSize(size)
+                    .totalPages(0)
+                    .items(followedUsers)
+                    .build();
+        }
+
+        // Get IDs of followed users
+        List<Long> followedUserIds = followedUsers.stream()
+                .map(User::getId)
+                .collect(Collectors.toList());
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Post> postPage = postRepository.findFeedPosts(followedUserIds, pageable);
+
+        List<PostResponse> postResponses = postPage.getContent().stream()
+                .map(post -> mapToPostResponse(post, userId))
+                .collect(Collectors.toList());
+
+        return PageResponse.builder()
+                .pageNo(page)
+                .pageSize(size)
+                .totalPages(postPage.getTotalPages())
+                .items(postResponses)
+                .build();
+    }
+
+    @Override
+    public PageResponse<?> getExploreFeed(Long currentUserId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Post> postPage = postRepository.findTrendingPosts(pageable);
+
+        List<PostResponse> postResponses = postPage.getContent().stream()
+                .map(post -> mapToPostResponse(post, currentUserId))
+                .collect(Collectors.toList());
+
+        return PageResponse.builder()
+                .pageNo(page)
+                .pageSize(size)
+                .totalPages(postPage.getTotalPages())
+                .items(postResponses)
+                .build();
+    }
 
     private User getUserById(Long userId) {
         return userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -300,6 +353,5 @@ public class PostServiceImpl implements PostService {
     private Post getPostById(Long postId) {
         return postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post not found"));
     }
-
 
 }

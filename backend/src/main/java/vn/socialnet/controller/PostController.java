@@ -13,9 +13,11 @@ import vn.socialnet.dto.request.PostCreationRequest;
 import vn.socialnet.dto.response.PageResponse;
 import vn.socialnet.dto.response.PostResponse;
 import vn.socialnet.dto.response.ResponseData;
+import vn.socialnet.dto.response.UserSummaryResponse;
 import vn.socialnet.enums.PostPrivates;
 import vn.socialnet.model.User;
 import vn.socialnet.service.PostService;
+import vn.socialnet.service.ReactionService;
 
 import java.util.List;
 
@@ -25,6 +27,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PostController {
     private final PostService postService;
+    private final ReactionService reactionService;
 
     @PostMapping(consumes = {"multipart/form-data"})
     public ResponseData<Long> createPost(@RequestPart List<MultipartFile> file,
@@ -79,6 +82,60 @@ public class PostController {
         log.info("Request to get posts for user {}", userId);
         PageResponse<?> posts = postService.getUserPosts(userId, user.getId(), page, size);
         return new ResponseData<>(HttpStatus.OK.value(), "User posts retrieved successfully", posts);
+    }
+
+    @GetMapping("/feed")
+    public ResponseData<PageResponse<?>> getFeed(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @AuthenticationPrincipal User user) {
+        log.info("Request to get feed for user {}", user.getId());
+        PageResponse<?> feed = postService.getFeed(user.getId(), page, size);
+        return new ResponseData<>(HttpStatus.OK.value(), "Feed retrieved successfully", feed);
+    }
+
+    @GetMapping("/explore")
+    public ResponseData<PageResponse<?>> getExploreFeed(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @AuthenticationPrincipal User user) {
+        log.info("Request to get explore feed");
+        PageResponse<?> exploreFeed = postService.getExploreFeed(user.getId(), page, size);
+        return new ResponseData<>(HttpStatus.OK.value(), "Explore feed retrieved successfully", exploreFeed);
+    }
+
+    /**
+     * POST /posts/{id}/like - Like a post
+     */
+    @PostMapping("/{id}/like")
+    public ResponseData<Void> likePost(@PathVariable Long id,
+                                       @AuthenticationPrincipal User user) {
+        log.info("User {} liking post {}", user.getId(), id);
+        reactionService.likePost(id, user.getId());
+        return new ResponseData<>(HttpStatus.OK.value(), "Post liked successfully", null);
+    }
+
+    /**
+     * DELETE /posts/{id}/like - Unlike a post
+     */
+    @DeleteMapping("/{id}/like")
+    public ResponseData<Void> unlikePost(@PathVariable Long id,
+                                         @AuthenticationPrincipal User user) {
+        log.info("User {} unliking post {}", user.getId(), id);
+        reactionService.unlikePost(id, user.getId());
+        return new ResponseData<>(HttpStatus.OK.value(), "Post unliked successfully", null);
+    }
+
+    /**
+     * GET /posts/{id}/likes - Get list of users who liked the post
+     */
+    @GetMapping("/{id}/likes")
+    public ResponseData<List<UserSummaryResponse>> getPostLikes(
+            @PathVariable Long id,
+            @AuthenticationPrincipal User user) {
+        log.info("Get likes for post {}", id);
+        List<UserSummaryResponse> likes = reactionService.getPostLikes(id, user.getId());
+        return new ResponseData<>(HttpStatus.OK.value(), "Likes retrieved successfully", likes);
     }
 
 }

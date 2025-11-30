@@ -7,6 +7,7 @@ import vn.socialnet.model.Follow;
 import vn.socialnet.model.User;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Repository
@@ -14,4 +15,10 @@ public interface FollowRepository extends JpaRepository<Follow,Long> {
 
 
     List<User> findFolloweesByFollower(User follower);
+
+    Optional<Object> findByFollowerIdAndFolloweeId(Long followerId, Long followeeId);
+
+    int countFollowsByFollowee(User followee);
+
+    int countFollowsByFollower(User follower);
 }

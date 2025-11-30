@@ -3,6 +3,36 @@ spring:
     activate:
       on-profile: dev
 
+  #config oAuth 2.0
+  security:
+    oauth2:
+      client:
+        registration:
+          google-user:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            redirect-uri: "{baseUrl}/login/oauth2/code/google-user"
+            provider: google
+            scope:
+              - openid
+              - profile
+              - email
+          google-admin:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            redirect-uri: "{baseUrl}/login/oauth2/code/google-admin"
+            provider: google
+            scope:
+              - openid
+              - profile
+              - email
+        provider:
+          google:
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
+            token-uri: https://oauth2.googleapis.com/token
+            user-name-attribute: sub
+
   devtools:
     add-properties: true
 
@@ -16,7 +46,7 @@ spring:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
@@ -26,8 +56,29 @@ spring:
     from-email: "manhphongg6572@gmail.com"
 
 jwt:
+  key_access_token: "8mhZcWZVPhDeucdGaUQhUQoSkda3yjAtkBPJNP/4dvQy"
+  key_refresh_token: "Gu4jjMNk9oBnertRHqfRZJdHnz5jihbbnjAHeWNQbpg9"
+  access_token_expiration: 3600000
+  expiration-refresh-token: 2592000000
 
-  key2: "8mhZcWZVPhDeucdGaUQhUQoSkda3+jAtkBPJNP/4dvQ="
+admin: { email_default: "admin@test.com", password_default: "12345678" }
 
-admin: { email_default: "manhphong6572@gmail.com", password_default: "12345678" }
+user-account-test: { email: "user@test.com", password: "12345678" }
+
+aws:
+  access-key: ${AWS_ACCESS_KEY}
+  secret-key: ${AWS_SECRET_KEY}
+  s3:
+    bucket: social-networkings
+    region: ap-southeast-1
+  cloudfront:
+    url: https://d28ic9z7shvx92.cloudfront.net
+
+
+spring.servlet.multipart.enabled: true
+spring.servlet.multipart.max-file-size: 5MB
+spring.servlet.multipart.max-request-size: 10MB
+
+
+
 

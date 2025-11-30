@@ -17,4 +17,8 @@ public interface PostService {
 
     PageResponse<?> getUserPosts(Long userId, Long currentUserId, int page, int size);
 
+    PageResponse<?> getFeed(Long userId, int page, int size);
+
+    PageResponse<?> getExploreFeed(Long currentUserId, int page, int size);
+
 }
